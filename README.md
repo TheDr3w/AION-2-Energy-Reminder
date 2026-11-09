@@ -6,7 +6,7 @@ A lightweight Windows application for tracking Odyle Energy regeneration in AION
 
 ## Screenshots
 
-![AION 2 Energy Reminder - Main Window](https://i.postimg.cc/vGB8WF2x/main-window.png)
+![AION 2 Energy Reminder - Main Window](https://i.postimg.cc/PxQLfqnK/main-window.png)
 
 ## Features
 
