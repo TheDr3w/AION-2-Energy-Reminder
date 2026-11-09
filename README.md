@@ -10,6 +10,10 @@ A lightweight Windows application for tracking Odyle Energy regeneration in AION
 
 ## Features
 
+- **Modern UI** — completely redesigned sleek interface built with CustomTkinter.
+- **Custom Accent Colors** — personalize the app with 7 presets or choose your own color.
+- **Adjustable Card Sizes** — choose between Compact, Medium, or Large layouts to fit your screen.
+- **Quick Spend Buttons** — easily subtract -40 or -80 energy with a single click.
 - **Multiple Characters** — track energy for all your characters in one place.
 - **Automatic Regeneration** — calculates +15 energy every 3 hours.
 - **Full Energy Prediction** — see exactly when each character will reach maximum energy.
