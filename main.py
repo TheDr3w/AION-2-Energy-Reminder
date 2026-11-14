@@ -399,13 +399,21 @@ def set_window_icon(window):
 
 
 def duration(seconds, app):
+    """Форматує залишок часу:
+    - менше години  → 14:37 (з секундами)
+    - більше години → 5:42  (без секунд)
+    - більше доби   → 1д 3:20
+    """
     seconds = max(0, int(seconds))
     days, seconds = divmod(seconds, 86400)
     hours, seconds = divmod(seconds, 3600)
     minutes, seconds = divmod(seconds, 60)
 
-    prefix = f"{days}{app.t('days')} " if days else ""
-    return prefix + f"{hours:02}:{minutes:02}:{seconds:02}"
+    if days:
+        return f"{days}{app.t('days')} {hours}:{minutes:02}"
+    if hours:
+        return f"{hours}:{minutes:02}"
+    return f"{minutes:02}:{seconds:02}"
 
 
 def read_energy(value, maximum, app):
@@ -626,15 +634,29 @@ class CharacterCard:
         )
         self.title.grid(row=0, column=0, sticky="w")
 
+        # Стрілки порядку
+        move_box = ctk.CTkFrame(head, fg_color="transparent")
+        move_box.grid(row=0, column=1, padx=(0, 4))
+
+        make_button(
+            move_box, "↑", lambda: self.app.move_up(self),
+            "neutral", 32, sz["btn_h"], sz["btn_font"],
+        ).pack(side="left", padx=1)
+
+        make_button(
+            move_box, "↓", lambda: self.app.move_down(self),
+            "neutral", 32, sz["btn_h"], sz["btn_font"],
+        ).pack(side="left", padx=1)
+
         edit_button(
             head, self.begin_edit,
             int(130 * bw), sz["btn_h"], sz["btn_font"],
-        ).grid(row=0, column=1, padx=6)
+        ).grid(row=0, column=2, padx=6)
 
         make_button(
             head, app.t("delete"), self.delete, "danger",
             int(95 * bw), sz["btn_h"], sz["btn_font"],
-        ).grid(row=0, column=2)
+        ).grid(row=0, column=3)
 
         # --- Режим редагування ---
         self._build_editor(body, compact=False)
@@ -824,9 +846,19 @@ class CharacterCard:
                 54, 28, 11,
             ).pack(side="right", padx=(4, 0))
 
-        # Редагувати / видалити
+        # Стрілки + редагувати / видалити
         tools = ctk.CTkFrame(self.status, fg_color="transparent")
         tools.grid(row=0, column=5, padx=(10, 0))
+
+        make_button(
+            tools, "↑", lambda: self.app.move_up(self),
+            "neutral", 28, 28, 11,
+        ).pack(side="left", padx=1)
+
+        make_button(
+            tools, "↓", lambda: self.app.move_down(self),
+            "neutral", 28, 28, 11,
+        ).pack(side="left", padx=1)
 
         edit_button(
             tools, self.begin_edit, 34, 28, 11, with_text=False
@@ -1021,24 +1053,16 @@ class CharacterCard:
     # --- Витрата енергії ---
 
     def spend(self, amount):
-        energy = self.current_energy()
-
-        if energy < amount:
-            messagebox.showwarning(
-                self.app.t("not_enough"),
-                self.app.t("not_enough_text", amount=amount, energy=energy),
-                parent=self.app,
-            )
-            return
-
         now = datetime.now()
+        energy = self.current_energy()
 
         # Спершу оновлюємо енергію до поточного моменту
         energy, self.next_tick, _ = advance(
             energy, self.next_tick, now, self.app.max_energy
         )
 
-        energy -= amount
+        # Дозволяємо зменшити до 0, навіть якщо amount більший за поточну енергію
+        energy = max(0, energy - amount)
         self.energy.set(str(energy))
 
         # Якщо таймер не йшов (була повна енергія) — запускаємо заново
@@ -1535,6 +1559,42 @@ class AionEnergyApp(ctk.CTk):
 
         card.frame.destroy()
         self.save()
+
+    def move_up(self, card):
+        """Підняти картку на одну позицію вище."""
+        try:
+            idx = self.cards.index(card)
+        except ValueError:
+            return
+
+        if idx <= 0:
+            return
+
+        self.cards[idx], self.cards[idx - 1] = self.cards[idx - 1], self.cards[idx]
+        self._repack_cards()
+        self.save()
+
+    def move_down(self, card):
+        """Опустити картку на одну позицію нижче."""
+        try:
+            idx = self.cards.index(card)
+        except ValueError:
+            return
+
+        if idx >= len(self.cards) - 1:
+            return
+
+        self.cards[idx], self.cards[idx + 1] = self.cards[idx + 1], self.cards[idx]
+        self._repack_cards()
+        self.save()
+
+    def _repack_cards(self):
+        """Перепакувати картки у новому порядку."""
+        for card in self.cards:
+            card.frame.pack_forget()
+
+        for card in self.cards:
+            card.frame.pack(fill="x", pady=(0, card.gap), padx=(6, 8))
 
     # --- Збереження / завантаження ---
 

@@ -1,8 +1,8 @@
 # UTF-8
 VSVersionInfo(
   ffi=FixedFileInfo(
-    filevers=(1, 1, 0, 0),
-    prodvers=(1, 1, 0, 0),
+    filevers=(1, 2, 0, 0),
+    prodvers=(1, 2, 0, 0),
     mask=0x3f,
     flags=0x0,
     OS=0x40004,
@@ -18,12 +18,13 @@ VSVersionInfo(
           [
             StringStruct('CompanyName', 'Dr3w'),
             StringStruct('FileDescription', 'Aion 2 Character Energy Tracker'),
-            StringStruct('FileVersion', '1.1.0.0'),
+            StringStruct('FileVersion', '1.2.0.0'),
             StringStruct('InternalName', 'AION-2-Energy-Reminder'),
             StringStruct('LegalCopyright', 'Dr3w'),
             StringStruct('OriginalFilename', 'AION-2-Energy-Reminder.exe'),
             StringStruct('ProductName', 'AION 2 Energy Reminder'),
-            StringStruct('ProductVersion', '1.1.0.0')
+            StringStruct('ProductVersion', '1.2.0.0'),
+            StringStruct('Author', 'Dr3w')
           ]
         )
       ]
